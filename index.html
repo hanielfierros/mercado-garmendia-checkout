@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#7A1630" />
+  <meta name="description" content="Confirmar pedido en Mercado Garmendia" />
+  <title>Mercado Garmendia — Confirmar pedido</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <img class="logo" src="garmen-2.jpg" alt="Mercado Garmendia" width="40" height="40" />
+      <span class="brand">Mercado Garmendia</span>
+    </header>
+
+    <main class="main" id="main">
+
+      <!-- Cargando -->
+      <section id="state-loading" class="state" aria-live="polite">
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row short"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row short"></div>
+        <div class="skeleton-row"></div>
+      </section>
+
+      <!-- Error -->
+      <section id="state-error" class="state hidden" aria-live="polite">
+        <div class="error-box">
+          <p class="error-title">No pudimos cargar tu pedido</p>
+          <p class="error-msg" id="error-msg">Verifica el enlace e inténtalo de nuevo.</p>
+        </div>
+      </section>
+
+      <!-- Checkout -->
+      <section id="state-checkout" class="hidden">
+        <div class="card">
+          <h2 class="card-title">Tu pedido</h2>
+          <div id="order-items"></div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Datos de contacto</h2>
+          <div class="fields">
+            <label class="field">
+              <span class="field-label">Nombre</span>
+              <input type="text" id="nombre" class="input" placeholder="Tu nombre" autocomplete="name" />
+            </label>
+            <label class="field">
+              <span class="field-label">Email</span>
+              <input type="email" id="email" class="input" placeholder="correo@ejemplo.com" autocomplete="email" inputmode="email" />
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Notas para tu pedido</h2>
+          <textarea id="notas" class="textarea" maxlength="250" rows="3"
+            placeholder="Ej. sin cebolla, cortes especiales, etc."></textarea>
+          <div class="counter"><span id="notas-count">0</span>/250</div>
+        </div>
+
+        <div class="card">
+          <div class="delivery-head">
+            <div class="delivery-text">
+              <h2 class="card-title no-margin">Entrega a Domicilio</h2>
+              <p class="hint">Solicitar entrega a domicilio</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="delivery-toggle" role="switch" aria-label="Solicitar entrega a domicilio" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div id="delivery-fields" class="delivery-fields collapsed" aria-hidden="true">
+            <label class="field">
+              <span class="field-label">Dirección</span>
+              <input type="text" id="direccion" class="input" placeholder="Calle, número, colonia" autocomplete="street-address" />
+            </label>
+            <label class="field">
+              <span class="field-label">Teléfono</span>
+              <input type="tel" id="telefono" class="input" placeholder="10 dígitos" autocomplete="tel" inputmode="tel" />
+            </label>
+            <p class="hint delivery-fee">+ $65.00 MXN por envío</p>
+          </div>
+        </div>
+
+        <div class="totals card">
+          <div class="total-line"><span>Subtotal</span><span id="subtotal"></span></div>
+          <div class="total-line" id="envio-line"><span>Envío</span><span id="envio">$0.00</span></div>
+          <div class="total-line grand"><span>Total</span><span id="total"></span></div>
+        </div>
+
+        <button id="submit-btn" class="btn-primary" type="button">HACER PEDIDO</button>
+        <p class="hint center">Pago en efectivo al recibir o recoger</p>
+      </section>
+
+      <!-- Confirmación -->
+      <section id="state-confirmed" class="hidden" aria-live="polite">
+        <div class="success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="44" height="44"><path d="M9 16.2 5.5 12.7 4 14.2 9 19.2 20 8.2 18.5 6.7z" fill="#7A1630"/></svg>
+        </div>
+        <h2 class="confirmed-title">¡Pedido realizado!</h2>
+        <p class="confirmed-num" id="conf-num"></p>
+        <div class="card confirmed-details" id="conf-details"></div>
+        <button id="whatsapp-btn" class="btn-whatsapp" type="button">
+          Enviar pedido por WhatsApp
+        </button>
+        <p class="hint center">Al abrir WhatsApp, pulsa «Enviar» para confirmar tu pedido.</p>
+      </section>
+
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
