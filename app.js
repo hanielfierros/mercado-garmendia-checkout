@@ -363,13 +363,30 @@
     return sid;
   }
 
-  // Elimina datos técnicos (CART_ID=… / CHECKOUT_URL=…) que el Agent devuelve al final.
+  // Elimina datos técnicos (CART_ID=… / CHECKOUT_URL=…, enlaces Markdown, URLs, cart_id y tokens)
+  // antes de mostrar la respuesta. Nunca se pinta checkout_url como texto.
   function cleanReply(text) {
-    return String(text || "")
-      .split("\n")
-      .filter(function (line) { return !/^\s*(CART_ID|CHECKOUT_URL)=/.test(line); })
-      .join("\n")
-      .trim();
+    var t = String(text || "");
+
+    // 1. Líneas técnicas CART_ID= / CHECKOUT_URL=
+    t = t.split("\n").filter(function (line) {
+      return !/^\s*(CART_ID|CHECKOUT_URL)=/.test(line);
+    }).join("\n");
+
+    // 2. Enlaces Markdown [texto](url) -> se eliminan por completo (nunca renderizar links)
+    t = t.replace(/\[[^\]]*\]\([^)\s]+\)/g, "");
+
+    // 3. URLs desnudas HTTP/HTTPS (incluye ?cart_id=...&token=...)
+    t = t.replace(/https?:\/\/[^\s"'<>)\]]+/g, "");
+
+    // 4. cart_id y token visibles
+    t = t.replace(/MG-CART-[a-f0-9]{32}/g, "");
+    t = t.replace(/\btoken=[A-Za-z0-9_\-]{16,}/g, "");
+
+    // 5. Limpieza de espacios y líneas vacías
+    t = t.replace(/[ \t]+$/gm, "").replace(/\n{3,}/g, "\n\n").trim();
+
+    return t;
   }
 
   // Renderizado seguro de Markdown (negritas, títulos, listas) solo con DOM/textContent.
@@ -473,13 +490,15 @@
         });
         var data = await resp.json();
         var reply = (data && data.reply) ? cleanReply(data.reply) : "No pude procesar tu mensaje. Inténtalo de nuevo.";
-        addBubble(reply, "agent");
-        if (data && data.cart_id) {
-          orderBtn.classList.remove("hidden");
-        }
         if (data && data.checkout_url) {
           checkoutUrl = data.checkout_url;
           checkoutBtn.classList.remove("hidden");
+          // Si tras limpiar el enlace el texto quedó vacío, mostrar mensaje amigable.
+          if (!reply) reply = "¡Listo! , ya puedes IR A PAGAR";
+        }
+        addBubble(reply, "agent");
+        if (data && data.cart_id) {
+          orderBtn.classList.remove("hidden");
         }
       } catch (e) {
         addBubble("Error de conexión. Inténtalo de nuevo.", "agent");
