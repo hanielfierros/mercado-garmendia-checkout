@@ -14,6 +14,11 @@
   var submitting = false;
   var lastPedido = null;
 
+  var AGENT_URL = "https://mercado-garmendia-agent-383735597998.us-central1.run.app/chat";
+  var SESSION_KEY = "mg_chat_session";
+  var checkoutUrl = null;
+  var chatBusy = false;
+
   function $(id) { return document.getElementById(id); }
 
   function fmt(n) {
@@ -35,7 +40,7 @@
   }
 
   function setState(name) {
-    ["state-loading", "state-error", "state-checkout", "state-confirmed"].forEach(function (s) {
+    ["state-loading", "state-error", "state-chat", "state-checkout", "state-confirmed"].forEach(function (s) {
       if (s === name) show(s); else hide(s);
     });
   }
@@ -46,7 +51,7 @@
     cartId = getParam("cart_id");
     checkoutToken = getParam("token");
     if (!cartId) {
-      showError("Falta el identificador del pedido en el enlace.");
+      setState("state-chat");
       return;
     }
     setState("state-loading");
@@ -344,11 +349,82 @@
     return row;
   }
 
+  /* ---------- Chat de compra ---------- */
+
+  function getSessionId() {
+    var sid = null;
+    try { sid = localStorage.getItem(SESSION_KEY); } catch (e) { /* storage no disponible */ }
+    if (!sid) {
+      sid = (window.crypto && window.crypto.randomUUID)
+        ? window.crypto.randomUUID()
+        : ("s-" + Date.now() + "-" + Math.random().toString(36).slice(2));
+      try { localStorage.setItem(SESSION_KEY, sid); } catch (e) { /* storage no disponible */ }
+    }
+    return sid;
+  }
+
+  function setupChat() {
+    var messages = $("chat-messages");
+    var input = $("chat-input");
+    var sendBtn = $("chat-send");
+    var checkoutBtn = $("chat-checkout");
+    var loading = $("chat-loading");
+
+    function addBubble(text, who) {
+      messages.appendChild(el("div", "chat-msg " + (who === "user" ? "user" : "agent"), text));
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function setBusy(v) {
+      chatBusy = v;
+      sendBtn.disabled = v;
+      input.disabled = v;
+      loading.classList.toggle("hidden", !v);
+    }
+
+    async function send() {
+      var msg = input.value.trim();
+      if (!msg || chatBusy) return;
+      input.value = "";
+      addBubble(msg, "user");
+      setBusy(true);
+      try {
+        var resp = await fetch(AGENT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({ message: msg, session_id: getSessionId() })
+        });
+        var data = await resp.json();
+        var reply = (data && data.reply) ? data.reply : "No pude procesar tu mensaje. Inténtalo de nuevo.";
+        addBubble(reply, "agent");
+        if (data && data.checkout_url) {
+          checkoutUrl = data.checkout_url;
+          checkoutBtn.classList.remove("hidden");
+        }
+      } catch (e) {
+        addBubble("Error de conexión. Inténtalo de nuevo.", "agent");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    sendBtn.addEventListener("click", send);
+    input.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") { ev.preventDefault(); send(); }
+    });
+    checkoutBtn.addEventListener("click", function () {
+      if (checkoutUrl) { window.location.href = checkoutUrl; }
+    });
+
+    addBubble("Hola. ¿Qué deseas comprar en Mercado Garmendia?", "agent");
+  }
+
   /* ---------- Init ---------- */
 
   document.addEventListener("DOMContentLoaded", function () {
     setupNotes();
     setupDelivery();
+    setupChat();
     $("submit-btn").addEventListener("click", submitOrder);
     $("whatsapp-btn").addEventListener("click", openWhatsApp);
     loadCart();

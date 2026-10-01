@@ -333,3 +333,49 @@ body {
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+/* Chat de compra */
+.chat-card { display: flex; flex-direction: column; gap: 12px; }
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.chat-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 15px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.chat-msg.agent {
+  align-self: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 6px;
+}
+.chat-msg.user {
+  align-self: flex-end;
+  background: var(--guinda);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+.chat-loading {
+  font-size: 13px;
+  color: var(--text-soft);
+  padding: 0 4px;
+}
+.chat-input-row { display: flex; gap: 8px; }
+.chat-input-row .input { flex: 1; }
+.chat-send {
+  width: auto;
+  padding: 0 20px;
+  min-height: 48px;
+  flex-shrink: 0;
+}
+.chat-checkout { margin-top: 4px; }
+

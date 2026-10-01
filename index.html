@@ -34,6 +34,20 @@
         </div>
       </section>
 
+      <!-- Chat de compra -->
+      <section id="state-chat" class="state hidden" aria-live="polite">
+        <div class="card chat-card">
+          <h2 class="card-title">Compra con IA</h2>
+          <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+          <div id="chat-loading" class="chat-loading hidden">Pensando…</div>
+          <div class="chat-input-row">
+            <input type="text" id="chat-input" class="input" placeholder="Escribe tu pedido…" autocomplete="off" />
+            <button id="chat-send" class="btn-primary chat-send" type="button">Enviar</button>
+          </div>
+          <button id="chat-checkout" class="btn-primary chat-checkout hidden" type="button">Ir a pagar</button>
+        </div>
+      </section>
+
       <!-- Checkout -->
       <section id="state-checkout" class="hidden">
         <div class="card">
