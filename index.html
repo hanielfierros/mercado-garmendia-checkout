@@ -40,10 +40,20 @@
           <h2 class="card-title">Bienvenidos al Mercado Garmendia</h2>
           <p class="hint">Tu asistente para encontrar y comprar productos del mercado.</p>
           <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
-          <div id="chat-loading" class="chat-loading hidden">Pensando…</div>
+          <div id="chat-loading" class="chat-loading hidden" role="status" aria-label="Procesando">
+            <span class="mini-fruit mini-fruit-1" aria-hidden="true">🍎</span>
+            <span class="mini-fruit mini-fruit-2" aria-hidden="true">🍊</span>
+            <span class="mini-fruit mini-fruit-3" aria-hidden="true">🥕</span>
+            <span class="mini-fruit mini-fruit-4" aria-hidden="true">🌽</span>
+            <span class="mini-fruit mini-fruit-5" aria-hidden="true">🍅</span>
+          </div>
           <div class="chat-input-row">
             <input type="text" id="chat-input" class="input" placeholder="Escribe tu pedido…" autocomplete="off" />
-            <button id="chat-send" class="btn-primary chat-send" type="button">Enviar</button>
+            <button id="chat-send" class="btn-primary chat-send" type="button" aria-label="Enviar">
+              <svg class="send-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" fill="currentColor"/>
+              </svg>
+            </button>
           </div>
           <button id="chat-order" class="btn-secondary chat-order hidden" type="button">Hacer pedido</button>
           <button id="chat-checkout" class="btn-primary chat-checkout hidden" type="button">Ir a pagar</button>
@@ -65,7 +75,7 @@
               <input type="text" id="nombre" class="input" placeholder="Tu nombre" autocomplete="name" />
             </label>
             <label class="field">
-              <span class="field-label">Email</span>
+              <span class="field-label">Email <em class="field-optional">* No obligatorio</em></span>
               <input type="email" id="email" class="input" placeholder="correo@ejemplo.com" autocomplete="email" inputmode="email" />
             </label>
           </div>
@@ -120,6 +130,7 @@
         <h2 class="confirmed-title">¡Pedido realizado!</h2>
         <p class="confirmed-num" id="conf-num"></p>
         <div class="card confirmed-details" id="conf-details"></div>
+        <p class="whatsapp-notice">ENVIA PEDIDO PARA CONFIRMAR TU COMPRA</p>
         <button id="whatsapp-btn" class="btn-whatsapp" type="button">
           Enviar pedido por WhatsApp
         </button>

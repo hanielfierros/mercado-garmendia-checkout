@@ -47,10 +47,18 @@
 
   /* ---------- Carga del carrito ---------- */
 
+  // Nueva visita sin cart_id/token -> nueva sesión (limpia solo el estado propio de la app).
+  function resetSession() {
+    try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* storage no disponible */ }
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) { /* storage no disponible */ }
+    checkoutUrl = null;
+  }
+
   async function loadCart() {
     cartId = getParam("cart_id");
     checkoutToken = getParam("token");
     if (!cartId) {
+      resetSession();
       setState("state-chat");
       return;
     }
@@ -490,16 +498,18 @@
         });
         var data = await resp.json();
         var reply = (data && data.reply) ? cleanReply(data.reply) : "No pude procesar tu mensaje. Inténtalo de nuevo.";
+        if (data && data.cart_id) {
+          orderBtn.classList.remove("hidden");
+          orderBtn.classList.add("btn-pulse");
+        }
         if (data && data.checkout_url) {
           checkoutUrl = data.checkout_url;
           checkoutBtn.classList.remove("hidden");
+          checkoutBtn.classList.add("btn-pulse");
           // Si tras limpiar el enlace el texto quedó vacío, mostrar mensaje amigable.
           if (!reply) reply = "¡Listo! , ya puedes IR A PAGAR";
         }
         addBubble(reply, "agent");
-        if (data && data.cart_id) {
-          orderBtn.classList.remove("hidden");
-        }
       } catch (e) {
         addBubble("Error de conexión. Inténtalo de nuevo.", "agent");
       } finally {
@@ -512,9 +522,11 @@
       if (ev.key === "Enter") { ev.preventDefault(); send(); }
     });
     orderBtn.addEventListener("click", function () {
+      orderBtn.classList.remove("btn-pulse");
       send("Prepara mi pedido y muéstrame el resumen completo de mi carrito.");
     });
     checkoutBtn.addEventListener("click", function () {
+      checkoutBtn.classList.remove("btn-pulse");
       if (checkoutUrl) { window.location.href = checkoutUrl; }
     });
 

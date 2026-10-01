@@ -178,6 +178,7 @@ body {
 .fields { display: grid; gap: 12px; }
 .field { display: grid; gap: 6px; }
 .field-label { font-size: 13px; font-weight: 500; color: var(--text-soft); }
+.field-optional { font-style: normal; font-size: 12px; font-weight: 400; color: var(--text-soft); }
 .input {
   width: 100%;
   border: 1px solid var(--line);
@@ -297,6 +298,14 @@ body {
 }
 .btn-whatsapp:hover { background: #1EBE5A; }
 .btn-whatsapp:active { transform: scale(0.98); }
+.whatsapp-notice {
+  text-align: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  margin: 18px 0 12px;
+}
 
 @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .confirmed-title { font-size: 24px; font-weight: 700; text-align: center; letter-spacing: -0.02em; }
@@ -371,19 +380,52 @@ body {
 .chat-msg .chat-list li { margin: 2px 0; }
 .chat-msg strong { font-weight: 700; }
 .chat-loading {
-  font-size: 13px;
-  color: var(--text-soft);
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 0 4px;
+  min-height: 22px;
+}
+.mini-fruit {
+  display: inline-block;
+  font-size: 15px;
+  line-height: 1;
+  animation: fruit-bounce 1.6s ease-in-out infinite;
+}
+.mini-fruit-1 { animation-delay: 0s; }
+.mini-fruit-2 { animation-delay: 0.15s; }
+.mini-fruit-3 { animation-delay: 0.3s; }
+.mini-fruit-4 { animation-delay: 0.45s; }
+.mini-fruit-5 { animation-delay: 0.6s; }
+@keyframes fruit-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+  50% { transform: translateY(-5px) rotate(16deg); opacity: 1; }
 }
 .chat-input-row { display: flex; gap: 8px; }
 .chat-input-row .input { flex: 1; }
 .chat-send {
-  width: auto;
-  padding: 0 20px;
+  width: 48px;
+  padding: 0;
   min-height: 48px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+.send-icon { display: block; }
 .chat-checkout { margin-top: 4px; }
+
+/* Animación de pulsación discreta (HACER PEDIDO / IR A PAGAR) */
+.btn-pulse {
+  animation: btn-breathe 2s ease-in-out infinite;
+}
+@keyframes btn-breathe {
+  0%, 100% { box-shadow: 0 4px 16px rgba(122,22,48,0.28); transform: scale(1); }
+  50% { box-shadow: 0 4px 22px rgba(122,22,48,0.55); transform: scale(1.015); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-pulse, .mini-fruit { animation: none; }
+}
 
 /* Botón secundario (HACER PEDIDO) */
 .btn-secondary {
