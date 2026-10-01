@@ -10,6 +10,7 @@
 
   var cartId = null;
   var cartData = null;
+  var checkoutToken = null;
   var submitting = false;
   var lastPedido = null;
 
@@ -43,6 +44,7 @@
 
   async function loadCart() {
     cartId = getParam("cart_id");
+    checkoutToken = getParam("token");
     if (!cartId) {
       showError("Falta el identificador del pedido en el enlace.");
       return;
@@ -175,6 +177,7 @@
     btn.textContent = "Enviando…";
 
     var body = {
+      checkout_token: checkoutToken,
       cliente: {
         nombre: $("nombre").value.trim(),
         email: $("email").value.trim(),
