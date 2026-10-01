@@ -349,9 +349,10 @@ body {
   border-radius: 16px;
   font-size: 15px;
   line-height: 1.4;
-  white-space: pre-wrap;
+  white-space: normal;
   word-break: break-word;
 }
+.chat-msg.user { white-space: pre-wrap; }
 .chat-msg.agent {
   align-self: flex-start;
   background: var(--surface);
@@ -364,6 +365,11 @@ body {
   color: #fff;
   border-bottom-right-radius: 6px;
 }
+.chat-msg .chat-h { font-size: 15px; font-weight: 700; margin: 6px 0 2px; }
+.chat-msg .chat-p { margin: 3px 0; }
+.chat-msg .chat-list { margin: 3px 0; padding-left: 18px; }
+.chat-msg .chat-list li { margin: 2px 0; }
+.chat-msg strong { font-weight: 700; }
 .chat-loading {
   font-size: 13px;
   color: var(--text-soft);
@@ -378,4 +384,23 @@ body {
   flex-shrink: 0;
 }
 .chat-checkout { margin-top: 4px; }
+
+/* Botón secundario (HACER PEDIDO) */
+.btn-secondary {
+  width: 100%;
+  border: 1px solid var(--guinda);
+  border-radius: 16px;
+  padding: 15px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--guinda);
+  background: #fff;
+  cursor: pointer;
+  min-height: 48px;
+  transition: transform 0.15s var(--ease), background 0.2s var(--ease);
+}
+.btn-secondary:hover { background: #F6E8EC; }
+.btn-secondary:active { transform: scale(0.98); }
+.chat-order { margin-top: 4px; }
 

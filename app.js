@@ -363,15 +363,92 @@
     return sid;
   }
 
+  // Elimina datos técnicos (CART_ID=… / CHECKOUT_URL=…) que el Agent devuelve al final.
+  function cleanReply(text) {
+    return String(text || "")
+      .split("\n")
+      .filter(function (line) { return !/^\s*(CART_ID|CHECKOUT_URL)=/.test(line); })
+      .join("\n")
+      .trim();
+  }
+
+  // Renderizado seguro de Markdown (negritas, títulos, listas) solo con DOM/textContent.
+  function addInlineText(parent, text) {
+    var parts = String(text).split("**");
+    for (var i = 0; i < parts.length; i++) {
+      if (parts[i] === "") continue;
+      if (i % 2 === 1) {
+        parent.appendChild(el("strong", null, parts[i]));
+      } else {
+        parent.appendChild(document.createTextNode(parts[i]));
+      }
+    }
+  }
+
+  function renderMarkdown(container, text) {
+    container.textContent = "";
+    var lines = String(text || "").replace(/\r\n/g, "\n").split("\n");
+    var list = null;
+
+    function flushList() {
+      if (list) { container.appendChild(list); list = null; }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var t = lines[i].trim();
+      if (t === "") { flushList(); continue; }
+
+      var h = t.match(/^(#{1,3})\s+(.*)$/);
+      if (h) {
+        flushList();
+        var hnode = el(h[1].length <= 1 ? "h3" : "h4", "chat-h", null);
+        addInlineText(hnode, h[2]);
+        container.appendChild(hnode);
+        continue;
+      }
+
+      var ul = t.match(/^[-*•]\s+(.*)$/);
+      if (ul) {
+        if (!list || list.tagName !== "UL") { flushList(); list = el("ul", "chat-list"); }
+        var li = el("li", null, null);
+        addInlineText(li, ul[1]);
+        list.appendChild(li);
+        continue;
+      }
+
+      var ol = t.match(/^\d+[.)]\s+(.*)$/);
+      if (ol) {
+        if (!list || list.tagName !== "OL") { flushList(); list = el("ol", "chat-list"); }
+        var li2 = el("li", null, null);
+        addInlineText(li2, ol[1]);
+        list.appendChild(li2);
+        continue;
+      }
+
+      flushList();
+      var p = el("p", "chat-p", null);
+      addInlineText(p, t);
+      container.appendChild(p);
+    }
+    flushList();
+  }
+
   function setupChat() {
     var messages = $("chat-messages");
     var input = $("chat-input");
     var sendBtn = $("chat-send");
     var checkoutBtn = $("chat-checkout");
+    var orderBtn = $("chat-order");
     var loading = $("chat-loading");
 
     function addBubble(text, who) {
-      messages.appendChild(el("div", "chat-msg " + (who === "user" ? "user" : "agent"), text));
+      var bubble = el("div", "chat-msg " + (who === "user" ? "user" : "agent"));
+      if (who === "user") {
+        bubble.textContent = text;
+      } else {
+        renderMarkdown(bubble, text);
+      }
+      messages.appendChild(bubble);
       messages.scrollTop = messages.scrollHeight;
     }
 
@@ -382,8 +459,8 @@
       loading.classList.toggle("hidden", !v);
     }
 
-    async function send() {
-      var msg = input.value.trim();
+    async function send(predefinedMsg) {
+      var msg = (typeof predefinedMsg === "string") ? predefinedMsg : input.value.trim();
       if (!msg || chatBusy) return;
       input.value = "";
       addBubble(msg, "user");
@@ -395,8 +472,11 @@
           body: JSON.stringify({ message: msg, session_id: getSessionId() })
         });
         var data = await resp.json();
-        var reply = (data && data.reply) ? data.reply : "No pude procesar tu mensaje. Inténtalo de nuevo.";
+        var reply = (data && data.reply) ? cleanReply(data.reply) : "No pude procesar tu mensaje. Inténtalo de nuevo.";
         addBubble(reply, "agent");
+        if (data && data.cart_id) {
+          orderBtn.classList.remove("hidden");
+        }
         if (data && data.checkout_url) {
           checkoutUrl = data.checkout_url;
           checkoutBtn.classList.remove("hidden");
@@ -408,9 +488,12 @@
       }
     }
 
-    sendBtn.addEventListener("click", send);
+    sendBtn.addEventListener("click", function () { send(); });
     input.addEventListener("keydown", function (ev) {
       if (ev.key === "Enter") { ev.preventDefault(); send(); }
+    });
+    orderBtn.addEventListener("click", function () {
+      send("Prepara mi pedido y muéstrame el resumen completo de mi carrito.");
     });
     checkoutBtn.addEventListener("click", function () {
       if (checkoutUrl) { window.location.href = checkoutUrl; }
