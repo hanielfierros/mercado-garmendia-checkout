@@ -84,6 +84,7 @@ body {
 .no-margin { margin-bottom: 0; }
 .hint { font-size: 13px; color: var(--text-soft); }
 .hint.center { text-align: center; margin-top: 12px; }
+.service-number { margin-top: 6px; }
 
 /* Línea de producto */
 .order-item {

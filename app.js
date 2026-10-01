@@ -165,10 +165,6 @@
   /* ---------- Envío del pedido ---------- */
 
   function validate() {
-    var email = $("email").value.trim();
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return "Revisa el email.";
-    }
     if (isDelivery()) {
       if (!$("direccion").value.trim()) return "Indica la dirección de entrega.";
       if (!$("telefono").value.trim()) return "Indica tu teléfono para la entrega.";
@@ -193,8 +189,8 @@
       checkout_token: checkoutToken,
       cliente: {
         nombre: $("nombre").value.trim(),
-        email: $("email").value.trim(),
-        telefono: isDelivery() ? $("telefono").value.trim() : ""
+        email: "",
+        telefono: isDelivery() ? $("telefono").value.trim() : $("telefono-contacto").value.trim()
       },
       delivery: {
         activo: isDelivery(),
@@ -465,6 +461,7 @@
     var checkoutBtn = $("chat-checkout");
     var orderBtn = $("chat-order");
     var loading = $("chat-loading");
+    var orderRequested = false;
 
     function addBubble(text, who) {
       var bubble = el("div", "chat-msg " + (who === "user" ? "user" : "agent"));
@@ -500,7 +497,9 @@
         var reply = (data && data.reply) ? cleanReply(data.reply) : "No pude procesar tu mensaje. Inténtalo de nuevo.";
         if (data && data.cart_id) {
           orderBtn.classList.remove("hidden");
-          orderBtn.classList.add("btn-pulse");
+          if (!orderRequested) {
+            orderBtn.classList.add("btn-pulse");
+          }
         }
         if (data && data.checkout_url) {
           checkoutUrl = data.checkout_url;
@@ -522,8 +521,9 @@
       if (ev.key === "Enter") { ev.preventDefault(); send(); }
     });
     orderBtn.addEventListener("click", function () {
+      orderRequested = true;
       orderBtn.classList.remove("btn-pulse");
-      send("Prepara mi pedido y muéstrame el resumen completo de mi carrito.");
+      send("Prepara mi pedido, muéstrame el resumen completo de mi carrito y genera el enlace de pago.");
     });
     checkoutBtn.addEventListener("click", function () {
       checkoutBtn.classList.remove("btn-pulse");
